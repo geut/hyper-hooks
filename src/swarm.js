@@ -7,8 +7,6 @@ const SwarmContext = createContext()
 export function SwarmProvider ({ children, config = {}, handlers = {} }) {
   const swarm = discoverySwarmWebrtc(config)
 
-  window.__HYPER_HOOKS__.swarm = swarm
-
   useEffect(() => {
     for (const event in handlers) {
       swarm.on(event, handlers[event])
