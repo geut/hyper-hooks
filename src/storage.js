@@ -8,8 +8,6 @@ export const StorageContext = createContext()
 export function StorageProvider ({ children, storage = () => ram }) {
   const storages = new Map()
 
-  window.__HYPER_HOOKS__.storages = storages
-
   function getStorage (key) {
     if (!storages.has(key)) {
       storages.set(key, storage(key))
