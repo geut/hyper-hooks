@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 
 import hypercore from 'hypercore'
+import { keyPair } from 'hypercore-crypto'
 
 import { HyperContext } from './hyper'
 import { StorageContext } from './storage'
@@ -12,7 +13,11 @@ export function HypercoreProvider ({ id = 'default', config = {}, children }) {
   const { getStorage } = useContext(StorageContext)
 
   useDeepCompareEffect(() => {
-    const { key, secretKey, ...options } = config
+    let { key, secretKey, ...options } = config
+
+    if (!key) {
+      ({ publicKey: key, secretKey } = keyPair())
+    }
 
     const storage = getStorage(key.toString('hex'))
 

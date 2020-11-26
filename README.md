@@ -1,21 +1,164 @@
 # @geut/hyper-hooks
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 [![Made by GEUT][geut-badge]][geut-url]
+
+React hooks for hyper world
+
+`@geut/hyper-hooks` provides a set of React hooks and providers to work with `hyper` libraries like [hypercore](https://github.com/hypercore-protocol/hypercore) and [hyperbee](https://github.com/mafintosh/hyperbee)
+
+
+## Table of Contents
+
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+- [Issues](#issues)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Install
 
 ```
 $ npm install @geut/hyper-hooks
 ```
+or
+```
+$ yarn add @geut/hyper-hooks
+```
 
 ## Usage
 
 ```javascript
-// TODO
+// ./App.js
+
+import React from 'react'
+
+import { 
+  HyperProvider, 
+  StorageProvider, 
+  HypercoreProvider, 
+  HyperbeeProvider
+} from '@geut/hyper-hooks'
+
+import Db from './components/Db'
+
+function App () {
+  return (
+    <HyperProvider>
+      <StorageProvider>
+        <HyperbeeProvider>
+          <Db />
+        </HyperbeeProvider>
+      </StorageProvider>
+    </HyperProvider>
+  )
+}
+
+export default App
 ```
+
+```javascript
+// ./components/Db.js
+
+import React, { useEffect } from 'react'
+
+import { useHyperbee } from '@geut/hyper-hooks'
+
+function Db () {
+  const { db, isReady, useGet, usePut, useValue } = useHyperbee()
+
+  // db.get and db.put separately
+  const [title] = useGet('title')
+  const putTitle = usePut('title')
+
+  // Shorthand for get/put
+  const { value: description, put: putDescription } = useValue('description')
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      putTitle(`New title - ${Date.now()}`)
+      putDescription(`New description - ${Date.now()}`)
+    }, 2000)
+
+    return function () {
+      clearInterval(interval)
+    }
+  }, [])
+
+  if (!isReady) return null
+
+  return (
+    <div>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <pre>Key: {db.feed.discoveryKey.toString('hex')}</pre>
+    </div>
+  )
+}
+```
+
+## Api
+
+### HyperProvider
+Keeps reference to inner hyper elements. 
+
+#### children
+> `ReactElement` | _required_
+
+React children.
+
+
+### StorageProvider
+Provides a storage layer where your hyper elements will be stored
+
+#### children
+> `ReactElement` | _required_
+
+React children.
+
+#### storage
+> `function()` | defaults to: `() => RandomAccessMemory`
+
+Function to create the storage.
+
+### HypercoreProvider
+Creates and provides an [hypercore](https://github.com/hypercore-protocol/hypercore) instance.
+
+#### id
+> `string` | defaults to `'default'`
+
+Identifies your hypercore for access it later with [`useHypercore`](#useHypercore).
+
+#### config
+> `object`
+
+Except for [`config.key`](#config.key) the rest of the config values are forwarded to the [Hypercore instance options](https://github.com/hypercore-protocol/hypercore#var-feed--hypercorestorage-key-options). 
+
+#### config.key
+> `Buffer` | defaults to `crypto.randomBytes(32)`
+
+Hypercore feed public key.
+
+### HyperbeeProvider
+[hyperbee](https://github.com/mafintosh/hyperbee) provider.
+
+#### id
+> `string` | defaults to `'default'`
+
+Identifies your hyperdrive for access it later with [`useHyperdrive`](#useHyperdrive).
+
+#### config
+> `object`
+
+Except for [`config.feed`](#config.feed) the rest of the config values are forwarded to the [Hyperbee instance options](https://github.com/mafintosh/hyperbee#const-db--new-hyperbeefeed-options). 
+
+#### config.feed
+> `Hypercore`
+
+Hypercore instance for this Hyperbee. If not provided a new one will be created with a random key pair.
 
 ## Issues
 
