@@ -106,7 +106,7 @@ function Db () {
 Keeps reference to inner hyper elements. 
 
 #### children
-> `ReactElement` | _required_
+`ReactElement` | _required_
 
 React children.
 
@@ -115,12 +115,12 @@ React children.
 Provides a storage layer where your hyper elements will be stored
 
 #### children
-> `ReactElement` | _required_
+`ReactElement` | _required_
 
 React children.
 
 #### storage
-> `function()` | defaults to: `() => RandomAccessMemory`
+`function()` | defaults to: `() => RandomAccessMemory`
 
 Function to create the storage.
 
@@ -128,17 +128,17 @@ Function to create the storage.
 Creates and provides an [hypercore](https://github.com/hypercore-protocol/hypercore) instance.
 
 #### id
-> `string` | defaults to `'default'`
+`string` | defaults to `'default'`
 
 Identifies your hypercore for access it later with [`useHypercore`](#useHypercore).
 
 #### config
-> `object`
+`object`
 
 Except for [`config.key`](#config.key) the rest of the config values are forwarded to the [Hypercore instance options](https://github.com/hypercore-protocol/hypercore#var-feed--hypercorestorage-key-options). 
 
 #### config.key
-> `Buffer` | defaults to `crypto.randomBytes(32)`
+`Buffer` | defaults to `crypto.randomBytes(32)`
 
 Hypercore feed public key.
 
@@ -146,17 +146,17 @@ Hypercore feed public key.
 [hyperbee](https://github.com/mafintosh/hyperbee) provider.
 
 #### id
-> `string` | defaults to `'default'`
+`string` | defaults to `'default'`
 
 Identifies your hyperdrive for access it later with [`useHyperdrive`](#useHyperdrive).
 
 #### config
-> `object`
+`object`
 
 Except for [`config.feed`](#config.feed) the rest of the config values are forwarded to the [Hyperbee instance options](https://github.com/mafintosh/hyperbee#const-db--new-hyperbeefeed-options). 
 
 #### config.feed
-> `Hypercore`
+`Hypercore`
 
 Hypercore instance for this Hyperbee. If not provided a new one will be created with a random key pair.
 
