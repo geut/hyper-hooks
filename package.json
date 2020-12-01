@@ -1,6 +1,6 @@
 {
   "name": "@geut/hyper-hooks",
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "description": "React hooks for hyper world",
   "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
