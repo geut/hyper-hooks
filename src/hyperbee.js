@@ -37,8 +37,10 @@ export function HyperbeeProvider ({ id = 'default', config = {}, children }) {
       ...options
     })
 
-    hypers.set(id, db)
-    setDb(db)
+    db.ready().then(() => {
+      hypers.set(id, db)
+      setDb(db)
+    })
   }, [config])
 
   return (db ? children : null)
@@ -108,29 +110,27 @@ function dbDel (db) {
   }
 }
 
-function dbBatch (db, ready) {
+function dbBatch (db) {
   return function batch () {
-    if (ready && db.feed.writable) {
+    if (db.feed.writable) {
       return db.batch()
     }
   }
 }
 
-function dbValue (db, ready) {
+function dbValue (db) {
   return function useValue (key, initialValue) {
     return {
       value: dbGet(db)(key, initialValue)[0],
       put: dbPut(db)(key),
       del: dbDel(db)(key),
-      batch: dbBatch(db, ready)
+      batch: dbBatch(db)
     }
   }
 }
 
-function dbReplicator (db, ready) {
+function dbReplicator (db) {
   return function replicator (socket, info) {
-    if (!ready) return
-
     const stream = db.feed.replicate(info.initiator, {
       encrypt: true,
       live: true
@@ -142,33 +142,19 @@ function dbReplicator (db, ready) {
 
 export function useHyperbee (id = 'default') {
   const { hypers } = useContext(HyperContext)
-  const [db, setDb] = useState(hypers.get(id))
 
-  const [ready, setReady] = useState(false)
-  useEffect(() => {
-    const db = hypers.get(id)
+  const db = hypers.get(id)
 
-    if (!db) {
-      setReady(false)
-      return
-    }
+  const replicator = useCallback(dbReplicator(db), [db])
 
-    setDb(db)
-
-    db.ready().then(() => setReady(true)).catch(console.error)
-  }, [id])
-
-  const replicator = useCallback(dbReplicator(db, ready), [db, ready])
-
-  const useBatch = useCallback(dbBatch(db, ready), [db, ready])
-  const useDel = useCallback(dbDel(db), [db, ready])
-  const useGet = useCallback(dbGet(db), [db, ready])
-  const usePut = useCallback(dbPut(db), [db, ready])
-  const useValue = useCallback(dbValue(db, ready), [db, ready])
+  const useBatch = useCallback(dbBatch(db), [db])
+  const useDel = useCallback(dbDel(db), [db])
+  const useGet = useCallback(dbGet(db), [db])
+  const usePut = useCallback(dbPut(db), [db])
+  const useValue = useCallback(dbValue(db), [db])
 
   return {
     db,
-    isReady: ready,
     useBatch,
     useDel,
     useGet,
