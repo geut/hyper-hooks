@@ -63,7 +63,7 @@ function dbGet (db) {
 
         if (data) {
           setValue(data.value)
-        } else if (initialValue !== undefined) {
+        } else if (initialValue !== undefined && db.feed.writable) {
           await db.put(key, initialValue)
         }
 
