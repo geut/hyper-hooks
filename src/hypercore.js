@@ -76,19 +76,21 @@ function feedValue (feed) {
   }
 }
 
-function feedReplicator (feed) {
-  function replicator (socket, info) {
-    if (info.channel.toString('hex') !== feed.discoveryKey.toString('hex')) return
+function feedReplicate (feed) {
+  return function useReplicate (opts = {}) {
+    return function replicate (socket, info) {
+      if (info.channel.toString('hex') !== feed.discoveryKey.toString('hex')) return
 
-    const stream = feed.replicate(info.initiator, {
-      encrypted: true,
-      live: true
-    })
+      const stream = feed.replicate(info.initiator, {
+        live: true,
+        ...opts
+      })
 
-    pump(socket, stream, socket)
+      pump(socket, stream, socket)
+
+      return stream
+    }
   }
-
-  return replicator
 }
 
 export function useHypercore (id = 'default') {
@@ -106,8 +108,7 @@ export function useHypercore (id = 'default') {
     setFeed(feed)
   }, [id])
 
-  const replicator = useCallback(feedReplicator(feed), [feed])
-
+  const useReplicate = useCallback(feedReplicate(feed), [feed])
   const useData = useCallback(feedData(feed), [feed])
   const useAppend = useCallback(feedAppend(feed), [feed])
   const useValue = useCallback(feedValue(feed), [feed])
@@ -117,6 +118,6 @@ export function useHypercore (id = 'default') {
     useData,
     useAppend,
     useValue,
-    replicator
+    useReplicate
   }
 }

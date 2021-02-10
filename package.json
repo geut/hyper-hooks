@@ -21,7 +21,6 @@
     "*.js": "npm run lint"
   },
   "dependencies": {
-    "@geut/discovery-swarm-webrtc": "^4.0.2",
     "buffer-json-encoding": "^1.0.2",
     "pump": "^3.0.0",
     "random-access-idb": "^1.2.1",
