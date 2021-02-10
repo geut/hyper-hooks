@@ -131,7 +131,7 @@ function dbValue (db) {
 
 function dbReplicate (db) {
   return function useReplicate (opts = {}) {
-    return function replicate (socket, info) {
+    return useCallback(function replicate (socket, info) {
       const stream = db.feed.replicate(info.initiator, {
         live: true,
         ...opts
@@ -140,7 +140,7 @@ function dbReplicate (db) {
       pump(socket, stream, socket)
 
       return stream
-    }
+    }, [opts.live, opts.ack, opts.download, opts.download, opts.upload, opts.encrypted, opts.noise, opts.keyPair, opts.onauthenticate])
   }
 }
 
