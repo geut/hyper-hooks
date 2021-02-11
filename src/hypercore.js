@@ -104,7 +104,7 @@ export function useHypercore (id = 'default') {
     setFeed(feed)
   }, [id])
 
-  const useReplicate = useCallback(feedReplicate(feed), [feed])
+  const replicate = useCallback(feedReplicate(feed), [feed])
   const useData = useCallback(feedData(feed), [feed])
   const useAppend = useCallback(feedAppend(feed), [feed])
   const useValue = useCallback(feedValue(feed), [feed])
@@ -114,6 +114,6 @@ export function useHypercore (id = 'default') {
     useData,
     useAppend,
     useValue,
-    useReplicate
+    replicate
   }
 }
