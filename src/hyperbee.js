@@ -130,17 +130,15 @@ function dbValue (db) {
 }
 
 function dbReplicate (db) {
-  return function useReplicate (opts = {}) {
-    return useCallback(function replicate (socket, info) {
-      const stream = db.feed.replicate(info.initiator, {
-        live: true,
-        ...opts
-      })
+  return function replicate (socket, initiator, opts = {}) {
+    const stream = db.feed.replicate(initiator, {
+      live: true,
+      ...opts
+    })
 
-      pump(socket, stream, socket)
+    pump(socket, stream, socket)
 
-      return stream
-    }, [opts.live, opts.ack, opts.download, opts.download, opts.upload, opts.encrypted, opts.noise, opts.keyPair, opts.onauthenticate])
+    return stream
   }
 }
 
@@ -149,7 +147,7 @@ export function useHyperbee (id = 'default') {
 
   const db = hypers.get(id)
 
-  const useReplicate = useCallback(dbReplicate(db), [db])
+  const replicate = useCallback(dbReplicate(db), [db])
   const useBatch = useCallback(dbBatch(db), [db])
   const useDel = useCallback(dbDel(db), [db])
   const useGet = useCallback(dbGet(db), [db])
@@ -163,6 +161,6 @@ export function useHyperbee (id = 'default') {
     useGet,
     usePut,
     useValue,
-    useReplicate
+    replicate
   }
 }

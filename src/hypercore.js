@@ -77,19 +77,15 @@ function feedValue (feed) {
 }
 
 function feedReplicate (feed) {
-  return function useReplicate (opts = {}) {
-    return useCallback(function replicate (socket, info) {
-      if (info.channel.toString('hex') !== feed.discoveryKey.toString('hex')) return
+  return function replicate (socket, initiator, opts = {}) {
+    const stream = feed.replicate(initiator, {
+      live: true,
+      ...opts
+    })
 
-      const stream = feed.replicate(info.initiator, {
-        live: true,
-        ...opts
-      })
+    pump(socket, stream, socket)
 
-      pump(socket, stream, socket)
-
-      return stream
-    }, [opts.live, opts.ack, opts.download, opts.download, opts.upload, opts.encrypted, opts.noise, opts.keyPair, opts.onauthenticate])
+    return stream
   }
 }
 
