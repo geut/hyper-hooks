@@ -68,7 +68,7 @@ import React, { useEffect } from 'react'
 import { useHyperbee } from '@geut/hyper-hooks'
 
 function Db () {
-  const { db, isReady, useGet, usePut, useValue } = useHyperbee()
+  const { db, useGet, usePut, useValue } = useHyperbee()
 
   // db.get and db.put separately
   const [title] = useGet('title')
@@ -87,8 +87,6 @@ function Db () {
       clearInterval(interval)
     }
   }, [])
-
-  if (!isReady) return null
 
   return (
     <div>

@@ -1,7 +1,7 @@
 import { useCallback, useContext, useState, useEffect } from 'react'
-import useDeepCompareEffect from 'use-deep-compare-effect'
-
 import { keyPair } from 'hypercore-crypto'
+import { HyperbeeLiveStream } from '@geut/hyperbee-live-stream'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 import Hyperbee from 'hyperbee'
 import hypercore from 'hypercore'
 import pump from 'pump'
@@ -67,23 +67,23 @@ function dbGet (db) {
           await db.put(key, initialValue)
         }
 
-        // Reactive
-        stream = db.createHistoryStream({
-          live: true,
-          gte: db.version
-        })
+        // // Reactive
+        // stream = db.createHistoryStream({
+        //   live: true,
+        //   gte: db.version
+        // })
+
+        stream = new HyperbeeLiveStream(db, { gte: key, lte: key })
 
         let raf
         for await (const data of stream) {
-          if (data.key === key) {
-            if (raf) {
-              window.cancelAnimationFrame(raf)
-            }
-
-            raf = window.requestAnimationFrame(() => {
-              setValue(data.value)
-            })
+          if (raf) {
+            window.cancelAnimationFrame(raf)
           }
+
+          raf = window.requestAnimationFrame(() => {
+            setValue(data.value)
+          })
         }
       })()
     }, [dbKey, key])
