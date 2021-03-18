@@ -1,11 +1,12 @@
 import { useCallback, useContext, useState, useEffect } from 'react'
 import { keyPair } from 'hypercore-crypto'
-import { HyperbeeLiveStream } from '@geut/hyperbee-live-stream'
 import useDeepCompareEffect from 'use-deep-compare-effect'
 import Hyperbee from 'hyperbee'
 import hypercore from 'hypercore'
 import pump from 'pump'
 import bufferJsonEncoding from 'buffer-json-encoding'
+
+import { HyperbeeLiveStream } from '@geut/hyperbee-live-stream'
 
 import { HyperContext } from './hyper'
 import { StorageContext } from './storage'
@@ -67,7 +68,6 @@ function dbGet (db) {
           await db.put(key, initialValue)
         }
 
-        // // Reactive
         // stream = db.createHistoryStream({
         //   live: true,
         //   gte: db.version
@@ -77,6 +77,8 @@ function dbGet (db) {
 
         let raf
         for await (const data of stream) {
+          if (data.key !== key) continue
+
           if (raf) {
             window.cancelAnimationFrame(raf)
           }
@@ -146,16 +148,38 @@ export function useHyperbee (id = 'default') {
   const { hypers } = useContext(HyperContext)
 
   const db = hypers.get(id)
+  const dbKey = db?.feed?.key.toString('hex')
 
-  const replicate = useCallback(dbReplicate(db), [db])
-  const useBatch = useCallback(dbBatch(db), [db])
-  const useDel = useCallback(dbDel(db), [db])
-  const useGet = useCallback(dbGet(db), [db])
-  const usePut = useCallback(dbPut(db), [db])
-  const useValue = useCallback(dbValue(db), [db])
+  const replicate = useCallback(dbReplicate(db), [dbKey])
+  const useBatch = useCallback(dbBatch(db), [dbKey])
+  const useDel = useCallback(dbDel(db), [dbKey])
+  const useGet = useCallback(dbGet(db), [dbKey])
+  const usePut = useCallback(dbPut(db), [dbKey])
+  const useValue = useCallback(dbValue(db), [dbKey])
 
   return {
     db,
+    useBatch,
+    useDel,
+    useGet,
+    usePut,
+    useValue,
+    replicate
+  }
+}
+
+export function useSubHyperbee (db, prefix, options) {
+  const subDb = db.sub(prefix, options)
+
+  const replicate = useCallback(dbReplicate(subDb), [subDb])
+  const useBatch = useCallback(dbBatch(subDb), [subDb])
+  const useDel = useCallback(dbDel(subDb), [subDb])
+  const useGet = useCallback(dbGet(subDb), [subDb])
+  const usePut = useCallback(dbPut(subDb), [subDb])
+  const useValue = useCallback(dbValue(subDb), [subDb])
+
+  return {
+    db: subDb,
     useBatch,
     useDel,
     useGet,
